@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13122.16" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13104.12"/>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15510"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -9,16 +11,104 @@
         <!--View Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="ViewController" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="CentralWindow" id="BYZ-38-t0r" customClass="ViewController" customModule="MIOC" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <wkWebView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="maG-KE-EUw">
+                                <rect key="frame" x="0.0" y="44" width="414" height="852"/>
+                                <color key="backgroundColor" red="0.36078431370000003" green="0.38823529410000002" blue="0.4039215686" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <wkWebViewConfiguration key="configuration">
+                                    <audiovisualMediaTypes key="mediaTypesRequiringUserActionForPlayback" none="YES"/>
+                                    <wkPreferences key="preferences"/>
+                                </wkWebViewConfiguration>
+                            </wkWebView>
+                        </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="maG-KE-EUw" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="TEB-6l-za2"/>
+                            <constraint firstItem="maG-KE-EUw" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="clJ-Kj-4KG"/>
+                            <constraint firstItem="maG-KE-EUw" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="fDV-59-OGf"/>
+                            <constraint firstAttribute="bottom" secondItem="maG-KE-EUw" secondAttribute="bottom" id="flC-DF-ibH"/>
+                        </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
+                    <connections>
+                        <outlet property="safeAreaContainerView" destination="maG-KE-EUw" id="G3L-P9-LGL"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
+            <point key="canvasLocation" x="137.68115942028987" y="88.392857142857139"/>
+        </scene>
+        <!--Online Audition-->
+        <scene sceneID="icE-IQ-8Hx">
+            <objects>
+                <viewController storyboardIdentifier="OnlineAudition" modalPresentationStyle="fullScreen" id="QnP-j2-W4f" customClass="OnlineAudition" customModule="MIOC" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="WxK-1h-TSH">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <wkWebView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Nyg-ek-1SP">
+                                <rect key="frame" x="0.0" y="44" width="414" height="852"/>
+                                <color key="backgroundColor" red="0.36078431370000003" green="0.38823529410000002" blue="0.4039215686" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <wkWebViewConfiguration key="configuration">
+                                    <audiovisualMediaTypes key="mediaTypesRequiringUserActionForPlayback" none="YES"/>
+                                    <wkPreferences key="preferences"/>
+                                </wkWebViewConfiguration>
+                            </wkWebView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstAttribute="bottom" secondItem="Nyg-ek-1SP" secondAttribute="bottom" id="DDk-G0-YiC"/>
+                            <constraint firstItem="Nyg-ek-1SP" firstAttribute="trailing" secondItem="EcK-Za-94Q" secondAttribute="trailing" id="Lil-8C-sbB"/>
+                            <constraint firstItem="Nyg-ek-1SP" firstAttribute="leading" secondItem="EcK-Za-94Q" secondAttribute="leading" id="LlZ-6m-PZK"/>
+                            <constraint firstItem="Nyg-ek-1SP" firstAttribute="top" secondItem="EcK-Za-94Q" secondAttribute="top" id="VSJ-f9-oUT"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="EcK-Za-94Q"/>
+                    </view>
+                    <connections>
+                        <outlet property="safeAreaContainerView" destination="Nyg-ek-1SP" id="XFj-t6-Qdz"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="uug-Mx-iUL" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="968.11594202898561" y="88.392857142857139"/>
+        </scene>
+        <!--Main2 Activity-->
+        <scene sceneID="qtG-x2-nHL">
+            <objects>
+                <viewController storyboardIdentifier="Main2Activity" modalPresentationStyle="fullScreen" id="KRt-ps-oGj" customClass="Main2Activity" customModule="MIOC" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="wh8-pI-QFM">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <wkWebView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="4Jw-lA-zZT">
+                                <rect key="frame" x="0.0" y="44" width="414" height="852"/>
+                                <color key="backgroundColor" red="0.36078431370000003" green="0.38823529410000002" blue="0.4039215686" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <wkWebViewConfiguration key="configuration">
+                                    <audiovisualMediaTypes key="mediaTypesRequiringUserActionForPlayback" none="YES"/>
+                                    <wkPreferences key="preferences"/>
+                                </wkWebViewConfiguration>
+                            </wkWebView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="4Jw-lA-zZT" firstAttribute="trailing" secondItem="DGC-s9-dVf" secondAttribute="trailing" id="46o-UQ-W6s"/>
+                            <constraint firstItem="4Jw-lA-zZT" firstAttribute="leading" secondItem="DGC-s9-dVf" secondAttribute="leading" id="IOc-gO-RGg"/>
+                            <constraint firstAttribute="bottom" secondItem="4Jw-lA-zZT" secondAttribute="bottom" id="h7K-6c-JWQ"/>
+                            <constraint firstItem="4Jw-lA-zZT" firstAttribute="top" secondItem="DGC-s9-dVf" secondAttribute="top" id="v0p-cu-vpv"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="DGC-s9-dVf"/>
+                    </view>
+                    <connections>
+                        <outlet property="safeAreaContainerView" destination="4Jw-lA-zZT" id="wLy-Qt-x6W"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="kVi-6a-9Cv" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1702.8985507246377" y="88.392857142857139"/>
         </scene>
     </scenes>
 </document>

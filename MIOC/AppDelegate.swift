@@ -7,6 +7,16 @@
 //
 
 import UIKit
+import CoreData
+
+struct GlobalVariables {
+    static var chosenMenu = "0"
+    static var id_of_user = ""
+    static var key_access = ""
+    static var content_for_second_activity = ""
+    static var id_of_discipline = ""
+    static var lesson = ""
+}
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {

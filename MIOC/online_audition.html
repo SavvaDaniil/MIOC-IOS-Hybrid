@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Онлайн аудитория</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, maximum-scale=10.0, user-scalable=no">
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <script src="js/jquery-3.2.1.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+
+  
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/main.css">
+  
+</head>
+<body>
+
+
+<div class="row" id="section_change_sections_buttons_oa" style="position:fixed;top:0px;width:100%;text-align:center;background-color:#000;padding:15px 0px 15px 0px;margin:0;z-index:9999;">
+
+	<div class="col-sm-2 col-xs-2"><img class="iconmenu" src="onlineaudition/logout_from_audition.png" onclick="close_activity();" /></div>
+	<div class="col-sm-4 col-xs-4"><p id="header_of_online_audition" style="color:#fff;font-size:8px;padding:0;margin:0;text-align:left;display:none;"></p></div>
+	<div class="col-sm-2 col-xs-2"><img class="iconmenu" id="img_s_2" src="onlineaudition/2.png" style="display:none;" onclick="change_section(2)" /></div>
+	<div class="col-sm-2 col-xs-2"><img class="iconmenu" id="img_s_3" src="onlineaudition/3_selected.png" style="display:none;" onclick="change_section(3)" /></div>
+	<div class="col-sm-2 col-xs-2"><img class="iconmenu" id="img_s_1" src="onlineaudition/1_selected.png" style="display:none;" onclick="change_section(1)" /></div>
+	<!--<hr style="padding:0;margin:15px 0px 0px 0px;" />-->
+
+</div>
+<div class="clearfix" style="padding-bottom:80px;"></div>
+
+<div id="last_date_update_of_paint" hidden></div>
+
+
+<script>
+var position_of_user = 0;
+var last_date_update_of_chat = "";
+var last_date_update_of_paint = "";
+var last_date_of_refresh_img_in_slider = "";
+var last_date_of_last_update_of_oprosnik = "";
+
+
+function change_section(a){
+	for(var i=1;i<=3;i++){
+		//$("#section"+i).hide();
+        document.getElementById("section"+i).style.display="none";
+		document.getElementById("img_s_"+i).src="onlineaudition/"+i+"_selected.png";
+	}
+	//$("#section"+a).show();
+    document.getElementById("section"+a).style.display="block";
+	document.getElementById("img_s_"+a).src="onlineaudition/"+a+".png";
+}
+
+function enter(){
+	clearInterval(interval_check_access_on_enter);
+	position_of_user = 1;
+    for(var i=1;i<=3;i++)$("#img_s_"+i).show();
+	$("#header_of_online_audition").show();
+	$("#section_enter_online_audition").hide();
+	load_section2();
+	change_section(2);
+	
+	check_actual_info();
+	interval_check_actual_info = setInterval(function()
+	{
+	check_actual_info();
+	},10000);
+}
+function exit_audition(){
+	clearInterval(interval_check_actual_info);
+	position_of_user = 0;
+	for(var i=1;i<=3;i++){
+		$("#img_s_"+i).hide();
+        document.getElementById("section"+i).style.display="none";
+		//$("#section"+i).html("");
+        //document.getElementById("section"+i).innerHTML = " ";
+	}
+    $("#section2").html("");
+	$("#header_of_online_audition").hide();
+	$("#section_enter_online_audition").show();
+    
+    last_date_update_of_chat = "0";
+    last_date_update_of_paint = "0";
+    last_date_of_refresh_img_in_slider = "0";
+    last_date_of_last_update_of_oprosnik = "0";
+    
+	check_access_on_enter();
+    interval_check_access_on_enter = setInterval(function()
+     {
+     check_access_on_enter();
+     },10000);
+}
+
+
+
+function getUrlVars() {
+var vars = {};
+var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+vars[key] = value;
+});
+return vars;
+}
+var id_of_user = getUrlVars()["a"];
+var key_access = getUrlVars()["b"];
+var id_of_audition = getUrlVars()["c"];
+
+
+
+function check_access_on_enter(){
+	$.ajax({
+		type:"POST",
+		url:  "https://www.miocedu.ru/application/oa_checkaccess.php",
+		data:{"b":key_access,"a":id_of_user,"id_of_audition":id_of_audition},
+		cashe: false,
+		error:function(){
+			document.getElementById("place_for_message_about_access_to_audition").innerHTML = "<center><font style='padding-top:50px;color:#fc5c42;'>Ошибка соединения</font><br /><button class='btn btn-success' onclick='"+'check_access_on_enter()'+"'>Попробовать снова</button></center>";
+			document.getElementById("place_for_btn_of_access_to_audition").innerHTML = "";
+		},
+		success: function(html)
+		{
+			//alert(html);
+			console.log(html);
+			var answer = JSON.parse(html);
+			//document.getElementById("section1").innerHTML = html;
+			document.getElementById("place_for_message_about_access_to_audition").innerHTML = answer.a;
+			document.getElementById("place_for_btn_of_access_to_audition").innerHTML = answer.b;
+		}
+	});
+}
+
+check_access_on_enter();
+var interval_check_access_on_enter = setInterval(function()
+{
+check_access_on_enter();
+},10000);
+var interval_check_actual_info = "";
+
+function load_section2(){
+	$("#section2").html('<center><img src="loading.gif" height="80px" /></center>');
+	$.ajax({
+		type:"POST",
+		url:  "https://www.miocedu.ru/application/oa_translation.php",
+		data:{"b":key_access,"a":id_of_user,"id_of_audition":id_of_audition},
+		cashe: false,
+		error:function(){
+			document.getElementById("section2").innerHTML = "<center><h3 style='padding-top:50px;color:#fc5c42;'>Ошибка соединения</h3><br /><button class='btn btn-success' onclick='"+'load_section2()'+"'>Попробовать снова</button></center>";
+		},
+		success: function(html)
+		{
+			//alert(html);
+			document.getElementById("section2").innerHTML = html;
+		}
+	});
+}
+
+
+
+
+
+
+
+	
+//функция проверки актуальности информации
+function check_actual_info(){
+	
+	$.ajax({
+		type:"POST",
+		url:  "https://www.miocedu.ru/application/oa_checkactualinfo.php",
+		data:{"b":key_access,"a":id_of_user,"id_of_audition":id_of_audition},
+		cashe: false,
+		async:false,
+		error:function(){
+			//alert("Произошла ошибка, проверьте пожалуйста интернет соединение!");
+		},
+		success: function(html)
+		{
+			$("#div_for_access").empty();
+			$("#div_for_access").append(html);
+			
+			
+			var answer = html;
+			//var array = JSON.parse(answer);
+			console.log(answer);
+			var array = JSON.parse(answer);
+			
+			//console.log(array["chat"]);
+			document.getElementById("header_of_online_audition").innerHTML = array['tema'];
+			
+			
+			//проверка чата
+			if(array["chat"] == "0" || array["chat"] == ""){
+				console.log("Диалог 0");
+			} else {
+				if(last_date_update_of_chat != array["chat"]){
+					load_messes('0');
+					last_date_update_of_chat = array["chat"];
+					console.log("Обновление диалога");
+				} else {
+					//console.log("В диалоге ничего нового");
+				}
+			}
+			
+			//проверка слайдера
+			if(array["slider"] == "0" || array["slider"] == ""){
+				console.log("Слайдер 0");
+			} else {
+				if(last_date_of_refresh_img_in_slider != array["slider"]){
+					load_img_in_controlled_slider_for_user();
+					
+					last_date_of_refresh_img_in_slider = array["slider"];
+					console.log("Обновление слайдера");
+				} else {
+					//console.log("В слайдере ничего нового");
+				}
+			}
+			
+			
+			
+			
+			//проверка доступа
+			if(array['status_of_access'] != "1")exit_audition();
+		}
+	});
+}
+
+//функция отправки сообщения в диалоге
+function send()
+    {
+        var mess=$("#postalAddress").val();
+		mess = mess.trim();
+		if(mess == ''){
+			//alert('Сообщение не может быть пустое');
+		} else {
+       $.ajax({
+			type: "POST",
+			url: "https://www.miocedu.ru/application/oa_sent_message_online_audition.php",
+			data:{"b":key_access,"a":id_of_user,"id_of_audition":id_of_audition,"mess":mess},
+			cashe: false,
+			// Выводим то что вернул PHP
+			success: function(html)
+			{
+				//Если все успешно, загружаем сообщения
+				load_messes('2');
+				//Очищаем форму ввода сообщения
+				$("#postalAddress").val('');
+			}
+        });
+		}
+    }
+
+//функция загрузки обновления диалога
+function load_messes(action){
+		var needed_scroll = $("#div_for_chat").scrollTop();
+		$.ajax({
+			type:"POST",
+			url:  "https://www.miocedu.ru/application/oa_load_dialog_online_audition.php",
+			data:{"b":key_access,"a":id_of_user,"id_of_audition":id_of_audition},
+			cashe: false,
+			// Выводим то что вернул PHP
+			success: function(html)
+			{
+				$("#div_for_chat").empty();
+				$("#div_for_chat").append(html);
+				//$("#div_for_chat").scrollTop(90000);
+				if(action == "1"){
+					//$("#div_for_chat").scrollTop(90000);
+				} else {
+					if(action == "2"){
+						//$("#div_for_chat").scrollTop(90000);
+					} else {
+						if(document.getElementById("div_for_chat").scrollHeight - $("#div_for_chat").scrollTop() <= (document.getElementById("div_for_chat").scrollHeight - 20)){
+							//console.log("Первое" + document.getElementById("div_for_chat").scrollHeight);
+							//console.log("Второе" + $("#div_for_chat").scrollTop());
+							//$("#div_for_chat").scrollTop(90000);
+							//console.log("Перемотка диалога не нужна");
+						} else {
+							//console.log("Первое" + document.getElementById("div_for_chat").scrollHeight);
+							//console.log("Второе" + $("#div_for_chat").scrollTop());
+							//console.log("Перемотки диалога");
+							$("#div_for_chat").scrollTop(needed_scroll);
+						}
+					}
+				}
+			}
+        });
+}
+
+//функция проверки актуальности слайдера или видео вместо слайдера
+function check_actual_slider_or_video(){
+	
+}
+
+
+
+//функция подгрузки опросника
+function load_oprosnik(){
+	$.ajax({
+		url:  "oprosnik.php",
+		cashe: false,
+		//async:false,
+		error:function(){
+			
+		},
+		success: function(html)
+		{
+			$("#div_for_oprosnik").empty();
+			$("#div_for_oprosnik").append(html);
+		}
+	});
+}
+
+
+//функция взаимодействие с опросником
+function click_oprosnik(id_of_oprosnik, value){
+	$.ajax({
+		type: "POST",
+		url:  "click_oprosnik.php",
+		data:{"id_of_oprosnik":id_of_oprosnik,"value":value},
+		cashe: false,
+		//async:false,
+		error:function(){
+			alert("При соединении с сервером произошла ошибка");
+		},
+		success: function(html)
+		{
+			load_oprosnik();
+		}
+	});
+}
+
+
+
+function load_img_in_controlled_slider_for_user(){
+	$("#div_for_image_for_user_in_controlled_slider").html('<center><img src="loading.gif" height="80px" /></center>');
+	$.ajax({
+		type:"POST",
+		url:  "https://www.miocedu.ru/application/oa_img_of_slider.php",
+		data:{"b":key_access,"a":id_of_user,"id_of_audition":id_of_audition},
+		cashe: false,
+		error:function(){
+			document.getElementById("div_for_image_for_user_in_controlled_slider").innerHTML = "<center><h3 style='padding-top:50px;color:#fc5c42;'>Ошибка соединения</h3><br /><button class='btn btn-success' onclick='"+'load_img_in_controlled_slider_for_user()'+"'>Попробовать снова</button></center>";
+		},
+		success: function(html)
+		{
+           console.log("SLIDER = "+html);
+			//alert(html);
+			//document.getElementById("div_for_image_for_user_in_controlled_slider").innerHTML = html;
+           $("#div_for_image_for_user_in_controlled_slider").html(html);
+		}
+	});
+}
+
+</script>
+
+
+<div id="section_enter_online_audition" class="container" style="padding-top:10px;">
+	<center id="place_for_message_about_access_to_audition"></center>
+	<center style="padding-top:2em;" id="place_for_btn_of_access_to_audition"></center>
+</div>
+
+<div id="section1" class="row" style="display:none;padding:0;margin:0;">
+	<div class="row" style="padding:0;margin:0;">
+		<div class="col-sm-10 col-xs-10">
+			<input id="postalAddress" class="form-control" maxlength="1000" style="background-color:#ededed;" />
+		</div>
+		<div class="col-sm-2 col-xs-2">
+			<img src="send_message.png" class="img-circle img-responsive" style="background-color:#fc5c42;padding:4px;margin-top:2px;" onclick="send();" />
+		</div>
+	</div>
+	
+	<div class="col-sm-12 col-xs-12" id="winchat" style="">
+	  
+	   <div style="height:495px;overflow:auto;padding-top:10px;" id="div_for_chat">
+	   
+		</div>
+	</div>
+	
+</div>
+
+<div id="section2" class="row" style="display:none;padding:0;margin:0;"></div>
+<div id="section3" class="row" style="display:none;padding:0;margin:0;">
+	<div id="div_for_image_for_user_in_controlled_slider">
+	
+	</div>
+				
+</div>
+
+
+
+<!--
+<img src="close.png" width="40px" style="position:absolute;margin-top:7px;margin-left:7px;z-index:1000;" onclick="close_activity();" />
+
+
+<div class="row" id="div_for_youtube" style="padding:0;margin:0;display:none;">
+
+</div>
+
+<div class="row" id="div_for_slider" style="padding:0;margin:0;display:none;">
+	
+</div>
+-->
+
+<script>
+//ниже функции прогрузки пиложения
+
+function close_activity(){
+	clearInterval(interval_check_access_on_enter);
+	clearInterval(interval_check_actual_info);
+	$("#section1").html("");
+	$("#section2").html("");
+	$("#section3").html("");
+	//Android.close_activity("");
+    window.location = "nativeScheme://exit_from_online_audition";
+}
+
+function getUrlVars() {
+var vars = {};
+var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+vars[key] = value;
+});
+return vars;
+}
+var id_of_user = getUrlVars()["a"];
+var key_access = getUrlVars()["b"];
+
+var content_for_second_activity = getUrlVars()["c"];
+var id_of_discipline = getUrlVars()["d"];
+var lesson = getUrlVars()["e"];
+
+
+if(content_for_second_activity == "youtube"){
+	document.getElementById("div_for_youtube").innerHTML = '<center><img src="loading.gif" width="80px" style="margin-top:50px;" /></center>';
+	document.getElementById("div_for_youtube").style.display = "block";
+	//document.getElementById("iframe_for_video_youtube").src = discipline_and_id_of_video_on_youtube + "?rel=0&showinfo=0&";
+	$.ajax({
+		type:"POST",
+		url:  "https://www.miocedu.ru/application/load_section.php",
+		data:{"b":key_access,"a":id_of_user,"c":"youtube","e":id_of_discipline,"l":lesson},
+		cashe: false,
+		error:function(){
+			document.getElementById("div_for_youtube").innerHTML = '<center><h3 style="padding-top:50px;color:#fc5c42;">Ошибка соединения</h3></center>';
+		},
+		success: function(html)
+		{
+			//alert(html);
+			document.getElementById("div_for_youtube").innerHTML = html;
+		}
+	});
+}
+
+
+function load_slide(id_of_discipline_js,lesson_js,command){
+	document.getElementById("div_for_slider").innerHTML = '<center><img src="loading.gif" width="80px" style="margin-top:50px;" /></center>';
+	document.getElementById("div_for_slider").style.display = "block";
+	$.ajax({
+		type:"POST",
+		url:  "https://www.miocedu.ru/application/load_section.php",
+		data:{"b":key_access,"a":id_of_user,"c":"slide","e":id_of_discipline_js,"l":lesson_js,"command":command},
+		cashe: false,
+		error:function(){
+			document.getElementById("div_for_slider").innerHTML = '<center><h3 style="padding-top:50px;color:#fc5c42;">Ошибка соединения</h3></center>';
+		},
+		success: function(html)
+		{
+			//alert(html);
+			document.getElementById("div_for_slider").innerHTML = html;
+		}
+	});
+}
+
+if(content_for_second_activity == "slide"){
+/*
+	document.getElementById("div_for_slider").innerHTML = '<center><img src="loading.gif" width="80px" style="margin-top:50px;" /></center>';
+	document.getElementById("div_for_slider").style.display = "block";
+	$.ajax({
+		type:"POST",
+		url:  "https://www.miocedu.ru/application/load_section.php",
+		data:{"b":key_access,"a":id_of_user,"c":"slide","e":id_of_discipline,"l":lesson},
+		cashe: false,
+		error:function(){
+			document.getElementById("div_for_slider").innerHTML = '<center><h3 style="padding-top:50px;color:#fc5c42;">Ошибка соединения</h3></center>';
+		},
+		success: function(html)
+		{
+			document.getElementById("div_for_slider").innerHTML = html;
+		}
+	});
+	*/
+	load_slide(id_of_discipline,lesson,"0");
+}
+
+
+
+
+var a = $(window).height();
+var b = $("#div_for_youtube").height();
+$("#div_for_youtube").css('height',a);
+</script>
+
+<input type="text" id="id_of_user" style="display:none;" />
+<input type="text" id="key_access" style="display:none;" />
+
+</body>
+</html>

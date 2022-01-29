@@ -1,0 +1,327 @@
+
+.button_auth_active {
+	background-color:#fc5c42;
+	color:#fff;
+	width:120px;
+}
+.button_auth {
+	background-color:#fcfcfc;
+	color:#000;
+	width:120px;
+}
+#btn_login {
+	border-top-left-radius:5px;
+	border-bottom-left-radius:5px;
+	border-top-right-radius:0;
+	border-bottom-right-radius:0;
+}
+#btn_reg {
+	border-top-left-radius:0;
+	border-bottom-left-radius:0;
+	border-top-right-radius:5px;
+	border-bottom-right-radius:5px;
+}
+
+
+#form_enter {
+	margin-top:45px;
+}
+#form_reg {
+	margin-top:45px;
+}
+
+.form_index {
+	width:200px;
+	margin-bottom:15px;
+}
+
+.btn-index {
+	background-color:#fc5c42;
+	color:#fff;
+	width:300px;
+	padding:12px;
+	border-radius:15px;
+	margin-top:15px;
+}
+
+.btn_reg_code {
+	background-color:#fc5c42;
+	color:#fff;
+	width:120px;
+	padding:12px;
+	border-radius:15px;
+	margin-top:15px;
+}
+
+
+/* Страница профиля */
+.img_profile {
+	margin-top:5px;
+	height:130px;
+}
+.edit_img_profile {
+	height:35px;
+	margin-top:-50px;
+	margin-right:-95px;
+}
+.edit_name_profile {
+	height:25px;
+}
+.profile_statistics_main {
+	background-color:#fcfcfc;
+	padding:4px 0 4px 0;
+}
+.profile_statistics {
+	text-align:center;
+	background-color:#fcfcfc;
+	font-size:10px;
+}
+.profile_statistics_numeral {
+	color:#fc5c42;
+	font-size:16px;
+	font-weight:bold;
+}
+
+.profile_info_div {
+	padding-left:25px;
+}
+.profile_info_span {
+	color:#d9d9d9;
+}
+.profile_info_img {
+	height:40px;
+	margin-top:12px;
+}
+
+.form-control-modal {
+	margin-bottom:5px;
+}
+
+
+/* Сектор курсы НАЧАЛО */
+
+.button_section_courses {
+	background-color:#fcfcfc;
+	color:#000;
+	padding:0;
+}
+.button_section_courses_active {
+	background-color:#fc5c42;
+	color:#fff;
+	padding:0;
+}
+#btn_all_courses {
+	border-radius:5px;
+	/*
+	border-top-left-radius:5px;
+	border-bottom-left-radius:5px;
+	border-top-right-radius:0;
+	border-bottom-right-radius:0;
+	*/
+}
+#btn_my_collection {
+	border-radius:5px;
+}
+
+#content4_div_all_courses {
+	margin-top:25px;
+}
+#content4_div_my_collection {
+	margin-top:25px;
+}
+.section4_list_courses {
+	margin-bottom:8px;
+	padding:0;
+}
+.content4_courses_img_of_course {
+	border-radius:10px;
+}
+.section4_courses_name {
+	margin:0px 0px 4px 0px;
+	font-size:12px;
+}
+.section4_courses_price {
+	color:#fc5c42;
+	margin:0px 0px 4px 0px;
+	font-size:12px;
+}
+.section4_courses_houres {
+	color:#808080;
+	margin:0px 0px 4px 0px;
+	font-size:12px;
+}
+.section4_opisanie {
+	opacity:0.5;
+}
+.section4_opisanie_active {
+	font-weight:bold;
+	border-bottom:2px solid #fc5c42;
+}
+.section4_program {
+	opacity:0.5;
+}
+.section4_program_active {
+	font-weight:bold;
+	border-bottom:2px solid #fc5c42;
+}
+#section4_div_opisanie_of_course {
+	padding-top:10px;
+	font-size:12px;
+}
+#section4_div_program_of_course {
+	padding-top:10px;
+	font-size:12px;
+}
+
+.section4_btn_auth_course {
+	background-color:#fc5c42;
+	color:#fff;
+	border-radius:10px;
+	margin:0px 25px;
+	width:250px;
+}
+/* Сектор курсы КОНЕЦ */
+
+
+
+/* Секция мое обучение НАЧАЛО */
+
+#section3_name_of_course {
+	color:#fc5c42;
+	margin-bottom:18px;
+	font-size:12px;
+}
+.section3_list_of_discipline {
+	background-color:#eff3f5;
+	border-radius:8px;
+	margin-bottom:15px;
+	padding:10px 15px;
+}
+.section3_list_of_discipline_done {
+	background-color:#fc5c42;
+	border-radius:8px;
+	margin-bottom:15px;
+	padding:10px 15px;
+}
+.section4_discipline_name {
+	color:#808080;
+	padding:0;
+}
+.section4_discipline_name_done {
+	color:#fff;
+	padding:0;
+}
+.section4_disipline_status {
+	color:#fc5c42;
+	font-weight:bold;
+	text-transform:uppercase;
+	font-size:12px;
+}
+.section4_disipline_status_done {
+	color:#fff;
+	font-weight:bold;
+	text-transform:uppercase;
+	font-size:12px;
+}
+
+#section3_name_of_discipline {
+	color:#fc5c42;
+	font-size:12px;
+	margin-bottom:18px;
+}
+
+.btn_start_test {
+	font-size:10px;
+	margin-top:4px;
+	color:#fff;
+	background-color:#fc5c42;
+}
+
+.section4_lesson_number {
+	color:#808080;
+	padding:0;
+}
+.section4_lesson_name {
+	color:#fc5c42;
+	font-weight:bold;
+	text-transform:uppercase;
+	font-size:12px;
+}
+.section3_list_of_zanyatiy {
+	/*background-color:#fc5c42;*/
+	background-color:#eff3f5;
+	border-radius:8px;
+	margin-bottom:15px;
+	padding:10px 15px;
+}
+
+.section3_btn_lesson_video {
+	opacity:0.5;
+}
+.section3_btn_lesson_video_active {
+	font-weight:bold;
+	border-bottom:2px solid #fc5c42;
+}
+.section3_btn_lesson_slides {
+	opacity:0.5;
+}
+.section3_btn_lesson_slides_active {
+	font-weight:bold;
+	border-bottom:2px solid #fc5c42;
+}
+.section3_lesson_div_video {
+	text-align:center;
+	background-color:#eff3f5;
+	margin-top:15px;
+	padding:25px 0px;
+	border-radius:8px;
+}
+.section3_lesson_div_slide {
+	text-align:center;
+	background-color:#eff3f5;
+	margin-top:15px;
+	padding:25px;
+	border-radius:8px;
+}
+
+#section3_name_of_test {
+	color:#fc5c42;
+	font-size:12px;
+}
+/* Секция мое обучение КОНЕЦ */
+
+
+.iconmenu{
+	height:20px;
+	width:auto;
+}
+
+/* Нижнее меню  */
+
+#section_change_sections_buttons div {
+	background-color:#fff;
+}
+#section_change_sections_buttons_oa div {
+	background-color:#000;
+}
+
+
+/* ГЛАВНАЯ начало */
+
+
+.online_audition_enter_header {
+	font-size:12px;
+}
+.online_audition_enter_status {
+	font-size:8px;
+}
+.online_audition_enter_status_not_active {
+	color:#acacac;
+}
+.online_audition_enter_status_active {
+	color:#fc5c42;
+}
+
+
+
+/* ГЛАВНАЯ конец */

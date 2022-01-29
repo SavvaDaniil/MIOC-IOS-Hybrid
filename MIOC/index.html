@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>MIOC application</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, maximum-scale=1.0, user-scalable=no">
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <script src="js/jquery-3.2.1.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+
+  
+  <link rel="stylesheet" href="css/style.css">
+  
+</head>
+<body>
+
+<div class="row" id="div_auth" style="padding:0;margin:0;display:none;">
+	<div class="container">
+		<center style="padding-top:75px;">
+			<img src="logo.png" />
+			<h4 style="font-weight:bold;margin-top:15px;margin-bottom:25px;">Авторизация</h4>
+			
+			<button id="btn_login" class="btn button_auth_active" onclick="change_btn_enter_reg('0');">Войти</button><button id="btn_reg" class="btn button_auth" onclick="change_btn_enter_reg('1');">Регистрация</button>
+		</center>
+		
+		<form id="form_enter">
+			<center>
+				<input id="email" type="email" class="form-control form_index" placeholder="Email*" />
+				<input id="password" type="password" class="form-control form_index" placeholder="Пароль*" />
+			</center>
+		</form>
+		
+		<form id="form_reg" style="display:none;">
+			<center>
+				<input id="name_for_reg" type="text" class="form-control form_index" placeholder="Имя*" value="" onchange="clear_warning();" />
+				<input id="secondname_for_reg" type="text" class="form-control form_index" placeholder="Фамилия*" value="" onchange="clear_warning();" />
+				<input id="email_for_reg" type="email" class="form-control form_index" placeholder="Email*" value="" onchange="clear_warning();" />
+			</center>
+		</form>
+		
+		<form id="form_reg_step_2" style="display:none;">
+			<center>
+				<p><i>На указанную почту отправлен PIN-code, введите его пожалуйста в поле для завершения авторизации устройства</i></p>
+				<input id="pin_code" type="number" class="form-control form_index" maxlength="6" placeholder="PIN-code" />
+			</center>
+		</form>
+		
+		<center>
+			<button type="button" id="btn_index" class="btn btn-index" onclick="auth();">Вход</button>
+			<button type="button" id="btn_reg_from" class="btn btn-index" style="display:none;" onclick="registration();">Зарегистрироваться</button>
+			<button type="button" id="btn_pin_code" class="btn btn_reg_code" style="display:none;">Отправить</button>
+			<button type="button" id="btn_pin_code_back" class="btn btn_reg_code" style="display:none;">Назад</button>
+		</center>
+		
+		<div class="col-sm-12 col-xs-12" id="warning_auth" style="color:red;text-align:center;font-size:12px;margin-top:25px;">
+		
+		</div>
+	</div>
+</div>
+
+
+
+
+<input type="text" id="status_of_index" style="display:none" value="-1" />
+<input type="number" id="code_2_from_server" style="display:none" value="0" />
+<script>
+//Авторизация
+var answer_code_1 = "";
+
+function change_btn_enter_reg(a){
+	if(a == "0"){
+		$("#status_of_index").val(a);
+		$("#btn_login").attr('class', 'btn button_auth_active');
+		$("#btn_reg").attr('class', 'btn button_auth');
+		document.getElementById("btn_index").style.display = "block";
+		document.getElementById("btn_reg_from").style.display = "none";
+		document.getElementById("form_enter").style.display = "block";
+		document.getElementById("form_reg").style.display = "none";
+		//document.getElementById("btn-index").innerHTML = "Вход";
+		clear_warning();
+	} else {
+		$("#status_of_index").val(a);
+		$("#btn_login").attr('class', 'btn button_auth');
+		$("#btn_reg").attr('class', 'btn button_auth_active');
+		document.getElementById("btn_index").style.display = "none";
+		document.getElementById("btn_reg_from").style.display = "block";
+		document.getElementById("form_enter").style.display = "none";
+		document.getElementById("form_reg").style.display = "block";
+		//document.getElementById("btn-index").innerHTML = "Зарегистрироваться";
+		clear_warning();
+	}
+}
+
+function randomInteger(min, max) {
+    var rand = min - 0.5 + Math.random() * (max - min + 1)
+    rand = Math.round(rand);
+    return rand;
+  }
+
+function auth(){
+	var a = document.getElementById("email").value;a = a.trim();
+	var b = document.getElementById("password").value;b = b.trim();
+	if(a != "" && b != ""){
+		$.ajax({
+			type:"POST",
+			url:  "https://www.miocedu.ru/application/auth.php",
+			data:{"a":a,"b":b},
+			cashe: false,
+			error:function(){
+				document.getElementById("warning_auth").innerHTML = "Ошибка связи с сервером";
+			},
+			success: function(html)
+			{
+				//alert(html);
+				if(html == "error 2"){
+					document.getElementById("warning_auth").innerHTML = "Ошибка №2. Свяжитесь пожалуйста с администраторами сайта";
+				} else {
+					if(html == "error 3"){
+						document.getElementById("warning_auth").innerHTML = "Неправильно введен логин или пароль";
+					} else {
+						var answer = JSON.parse(html);
+						//answer_code_1 = answer.code1;
+						var id_of_user_from_server = answer.id_of_user;
+						var key_access_from_server = answer.key_access;
+						//Android.registration(id_of_user_from_server,key_access_from_server);
+                        window.location = "nativeScheme://registration"+id_of_user_from_server+"_"+key_access_from_server;
+						//window.location.reload("index.html?a="+id_of_user_from_server+"&b="+key_access_from_server);
+					}
+				}
+			}
+		});
+		
+		//в зависимости от ответа на сервере можно поставить проверку на БРУТ
+		
+		
+	} else {
+		document.getElementById("warning_auth").innerHTML = "Все поля обязательны для заполнения";
+	}
+}
+
+function registration(){
+	var a = document.getElementById("name_for_reg").value;a = a.trim();
+	var b = document.getElementById("secondname_for_reg").value;b = b.trim();
+	var c = document.getElementById("email_for_reg").value;c = c.trim();
+	if(a != "" && b != "" && c != ""){
+		//запускаем процедуру запуск авторизации
+		var code_step_1 = randomInteger(100000, 999999);
+		console.log("code_step_1 = "+code_step_1);
+		$.ajax({
+			type:"POST",
+			url:  "https://www.miocedu.ru/application/reg_step_1.php",
+			data:{"d":code_step_1,"c":c,"a":a,"b":b},
+			cashe: false,
+			error:function(){
+				document.getElementById("warning_auth").innerHTML = "Ошибка связи с сервером";
+			},
+			success: function(html)
+			{
+				//alert(html);
+				if(html == "error 34"){
+					document.getElementById("warning_auth").innerHTML = "Слишком много запросов на регистрацию с данного устройства";
+				} else {
+					if(html == "error 5"){
+						document.getElementById("warning_auth").innerHTML = "Данный логин уже зарегистрирован в базе.<br />Воспользуйтесь пожалуйста вкладкой ВОЙТИ";
+					} else {
+						var answer = JSON.parse(html);
+						answer_code_1 = answer.code1;
+						
+						document.getElementById("btn_login").style.display = "none";
+						document.getElementById("btn_reg").style.display = "none";
+						document.getElementById("btn_reg_from").style.display = "none";
+						document.getElementById("form_reg").style.display = "none";
+						document.getElementById("form_reg_step_2").style.display = "block";
+						document.getElementById("btn_pin_code_back").style.display = "block";
+						document.getElementById("btn_pin_code").style.display = "block";
+					}
+				}
+			}
+		});
+		
+		//в зависимости от ответа на сервере можно поставить проверку на БРУТ
+		
+		
+	} else {
+		document.getElementById("warning_auth").innerHTML = "Все поля обязательны для заполнения";
+	}
+}
+function clear_warning(){
+	document.getElementById("warning_auth").innerHTML = "";
+}
+function registration_step_2(){
+	var pin_code = document.getElementById("pin_code").value;
+	a = a.trim();
+	var a = parseInt(answer_code_1, 10);
+	a = a + 1;
+	//alert("pin_code = "+pin_code+" a="+a);
+	if(pin_code != ""){
+		$.ajax({
+			type:"POST",
+			url:  "https://www.miocedu.ru/application/registration.php",
+			data:{"pin_code":pin_code,"a":a},
+			cashe: false,
+			error:function(){
+				document.getElementById("warning_auth").innerHTML = "Ошибка связи с сервером";
+			},
+			success: function(html)
+			{
+				//alert(html);
+				if(html == "error 56"){
+					document.getElementById("warning_auth").innerHTML = "Код неверный";
+				} else {
+					var answer = JSON.parse(html);
+					var id_of_user_from_server = answer.id_of_user;
+					var key_access_from_server = answer.key_access;
+					//заносим в приложение
+					//Android.registration(id_of_user_from_server,key_access_from_server);
+                    window.location = "nativeScheme://registration"+id_of_user_from_server+"_"+key_access_from_server;
+				}
+			}
+		});
+	} else {
+		document.getElementById("warning_auth").innerHTML = "Введите пожалуйста PIN-code из письма, отправленного на ваш ящик";
+	}
+}
+</script>
+
+
+
+<div id="content1" class="row" style="position:relative;padding:0;margin:0;display:none;">
+	<center style="padding-top:15px;">
+		<h4 style="font-weight:bold;margin-top:15px;margin-bottom:25px;">Главная</h4>
+	</center>
+	
+	<div id="div_for_section1">
+		<center>
+			<i style="padding-top:130px;">Новых новостей нет</i>
+		</center>
+	</div>
+	
+</div>
+
+<script>
+function load_section1(){
+	document.getElementById("div_for_section1").innerHTML = '<center><img src="loading.gif" width="80px" style="margin-top:50px;" /></center>';
+	change_menu("1");
+	
+	$.ajax({
+		type:"POST",
+		url:  "https://www.miocedu.ru/application/load_section.php",
+		data:{"b":key_access,"a":id_of_user,"c":"1"},
+		cashe: false,
+		error:function(){
+			document.getElementById("div_for_section1").innerHTML = '<center><i style="padding-top:130px;">Ошибка связи с сервером</i></center>';
+		},
+		success: function(html)
+		{
+			$("#div_for_section1").empty();
+			$("#div_for_section1").append(html);
+		}
+	});
+}
+function enteronlineaudition(){
+    window.location = "nativeScheme://enteronlineaudition";
+}
+</script>
+
+
+<style>
+.section2_1_hr {
+	padding:0;
+	margin:0;
+}
+.section2_1_prepods {
+	padding:8px;
+}
+/*
+.section2_1_prepods_odd {
+	padding:8px;
+	background-color:#fdfdfd;
+}
+.section2_1_prepods_even {
+	padding:8px;
+}
+*/
+.section2_1_text_of_message {
+	padding-left:15px;
+	font-size:12px;
+	color:#d2d2d7;
+}
+.section2_1_text_of_message_unread {
+	padding-left:15px;
+	font-size:12px;
+	color:#fff;
+}
+.section2_1_prepods_unread {
+	padding:8px;
+	background-color:#d9d9d9;
+}
+.section2_1_position_of_prepod {
+	padding-left:15px;
+	font-weight:bold;
+}
+
+
+#section2_dialog1 {
+	background-color:#fc5c42;
+	padding-top:15px;
+}
+#section2_dialog1 div {
+	background-color:#fc5c42;
+}
+#section2_name_of_dislog {
+	margin-top:15px;
+}
+.section2_2_name_of_dialog {
+	font-size:12px;
+	padding-top:8px;
+	color:#fff;
+	font-weight:bold;
+}
+
+
+#section2_dialog2 {
+
+}
+.section2_2_div_from_prepod {
+	background-color:#d9d9d9;
+	border-radius:8px;
+	padding:4px;
+	margin-top:4px;
+}
+.section2_2_message_from_prepod {
+	background-color:#d9d9d9;
+	border-radius:8px;
+	padding:4px;
+	margin-top:4px;
+}
+.section2_2_message_from_prepod_time_of_message {
+	text-align:right;
+	font-size:10px;
+	color:#fff;
+	padding:0;
+	margin:0;
+}
+
+.section2_2_message_from_user {
+	text-align:right;
+	background-color:#f9f9f9;
+	border-radius:8px;
+	padding:4px;
+	margin-top:4px;
+}
+.section2_2_message_from_user_time_of_message {
+	font-size:10px;
+	color:#000;
+	padding:0;
+	margin:0;
+}
+
+#section2_dialog3 {
+	background-color:#fc5c42;
+	padding:4px;
+}
+</style>
+
+<div id="content2" class="row" style="position:relative;padding:0;margin:0;display:none;">
+	<div id="section2_list_of_prepods">
+	
+	</div>
+	
+	 
+	<div id="section2_dialog1" style="position:fixed;width:100%;z-index:100;display:none;">
+		<div class="col-sm-2 col-xs-2" style="margin-right:0px;padding-right:0px;"><img src="back.png" class="img-responsive" style="height:20px;margin-top:10px;margin-bottom:18px;" onclick="return_to_list_of_prepods();" /></div>
+		<div class="col-sm-2 col-xs-2" style="margin-left:0px;padding-left:0px;"><img id="section2_chat_img_of_prepod" class="img-circle img-responsive" src="no-photo.png" style="margin-bottom:10px;" /></div>
+		<div class="col-sm-8 col-xs-8"><p id="section2_chat_name_of_prepod" class="section2_2_name_of_dialog">Должность учителя</p></div>
+	</div>
+	<div id="section2_dialog2" style="z-index:-9999;margin-top:75px;margin-bottom:75px;display:none;">
+	
+		
+		
+	</div>
+	
+	<div id="section2_dialog3" style="position:fixed;width:100%;z-index:100;bottom:75px;display:none;">
+		<div class="col-sm-11 col-xs-10">
+			<input id="text_of_message" class="form-control" placeholder="Написать преподавателю" maxlength="1000" />
+		</div>
+		<div class="col-sm-1 col-xs-2">
+			<img src="send_message.png" class="img-circle img-responsive" style="background-color:#fff;padding:2px;" onclick="send_message();" />
+		</div>
+	</div>
+	 
+	<input id="selected_window_in_section2" style="display:none;" value="0" />
+</div>
+
+
+<script>
+function load_section2(){
+	document.getElementById("section2_list_of_prepods").innerHTML = '<center><img src="loading.gif" width="80px" style="margin-top:50px;" /></center>';
+	change_menu("2");
+	
+	$.ajax({
+		type:"POST",
+		url:  "https://www.miocedu.ru/application/load_section.php",
+		data:{"b":key_access,"a":id_of_user,"c":"2"},
+		cashe: false,
+		error:function(){
+			document.getElementById("section2_list_of_prepods").innerHTML = '<center><i style="padding-top:130px;">Ошибка связи с сервером</i></center>';
+		},
+		success: function(html)
+		{
+			$("#section2_list_of_prepods").empty();
+			$("#section2_list_of_prepods").append(html);
+		}
+	});
+}
+var CONSTANT_id_of_target = "";
+function load_dialog(id_of_target){
+	var needed_scroll = $("#section2_dialog2").scrollTop();
+	CONSTANT_id_of_target = id_of_target;
+	$("#section2_dialog_"+id_of_target).attr('class', 'container section2_1_prepods');
+	document.getElementById("section2_chat_name_of_prepod").innerHTML = document.getElementById("section2_name_of_dialog_"+id_of_target).innerHTML;
+	document.getElementById("section2_chat_img_of_prepod").src = document.getElementById("section2_img_of_dialog_"+id_of_target).src;
+	
+	document.getElementById("section2_list_of_prepods").style.display = "none";
+	document.getElementById("section2_dialog1").style.display = "block";
+	document.getElementById("section2_dialog2").style.display = "block";
+	document.getElementById("section2_dialog3").style.display = "block";
+	
+	document.getElementById("section2_dialog2").innerHTML = '<center><img src="loading.gif" width="80px" style="margin-top:50px;" /></center>';
+	
+	$.ajax({
+		type:"POST",
+		url:  "https://www.miocedu.ru/application/load_section.php",
+		data:{"b":key_access,"a":id_of_user,"c":"2","command":"chat","id_of_target":id_of_target},
+		cashe: false,
+		error:function(){
+			document.getElementById("section2_dialog2").innerHTML = '<center><i style="padding-top:130px;">Ошибка связи с сервером</i></center>';
+		},
+		success: function(html)
+		{
+			$("#section2_dialog2").empty();
+			$("#section2_dialog2").append(html);
+			$("#section2_dialog2").scrollTop(90000);
+		}
+	});
+}
+function return_to_list_of_prepods(){
+	document.getElementById("section2_list_of_prepods").style.display = "block";
+	document.getElementById("section2_dialog1").style.display = "none";
+	document.getElementById("section2_dialog2").style.display = "none";
+	document.getElementById("section2_dialog3").style.display = "none";
+}
+function send_message(){
+	var text_of_message = document.getElementById("text_of_message").value;
+	text_of_message = text_of_message.trim();
+	if(text_of_message != ""){
+		$.ajax({
+			type:"POST",
+			url:  "https://www.miocedu.ru/application/load_section.php",
+			data:{"b":key_access,"a":id_of_user,"c":"2","command":"send_message","id_of_target":CONSTANT_id_of_target,"text_of_message":text_of_message},
+			cashe: false,
+			error:function(){
+				document.getElementById("section2_dialog2").innerHTML = '<center><i style="padding-top:130px;">Ошибка связи с сервером</i></center>';
+			},
+			success: function(html)
+			{
+				document.getElementById("text_of_message").value = "";
+				load_dialog(CONSTANT_id_of_target);
+			}
+		});
+	}
+}
+</script>
+
+
+
+
+
+<div id="content3" class="row" style="position:relative;padding:0px 0px 50px 0px;margin:0;display:none;">
+	<center style="padding-top:15px;">
+		<h4 style="font-weight:bold;margin-top:15px;">Мое обучение</h4>
+		
+		<!--<i style="padding-top:150px;">Выберите пожалуйста курс в следующей вкладке справа</i>-->
+	</center>
+	
+	<div class="container" id="content3_list_of_disciplines" style="padding-bottom:70px;">
+	<!--
+		<center>
+			<h4 id="section3_name_of_course">Название курса</h4>
+			
+		</center>
+		
+		<div class="col-sm-12 col-xs-12 section3_list_of_discipline" onclick="load_discipline('1');">
+			<p class="section4_discipline_name">Название дисциплины</p>
+			<p class="section4_disipline_status">Выполнено</p>
+		</div>
+		<div class="clearfix"></div>
+		<div class="col-sm-12 col-xs-12 section3_list_of_discipline_done">
+			<p class="section4_discipline_name_done">Название дисциплины</p>
+			<p class="section4_disipline_status_done">Выполняется</p>
+		</div>
+		<div class="clearfix"></div>
+		-->
+		<center style="margin-top:50px;">
+			<h4 >Выберите пожалуйста курс из</h4>
+			<button class="btn" style="background-color:#fc5c42;color:#fff;font-size:20px;" onclick="load_section_4();">каталога</button>
+			
+		</center>
+		
+	</div>
+	
+	
+	<div class="container" id="content3_list_of_zanyatiy" style="display:none;padding-bottom:70px;">
+		<div class="col-sm-2 col-xs-2"><img src="back.png" class="img-responsive" style="height:20px;margin-top:10px;" onclick="load_discipline('0');" /></div>
+		<div class="col-sm-8 col-xs-8">
+			<center>
+				<h4 id="section3_name_of_discipline">Название дисциплины</h4>
+			</center>
+		</div>
+		<div class="col-sm-2 col-xs-2">
+			<button class="btn btn-sm btn_start_test" onclick="open_test('1');">Тест</button>
+		</div>
+		<div class="clearfix"></div>
+		
+		<div class="col-sm-12 col-xs-12 section3_list_of_zanyatiy" onclick="load_zanyatiya('1');">
+			<p class="section4_lesson_number">Занятие №1</p>
+			<p class="section4_lesson_name">Название</p>
+		</div>
+		<div class="clearfix"></div>
+		<div class="col-sm-12 col-xs-12 section3_list_of_zanyatiy">
+			<p class="section4_lesson_number">Занятие №1</p>
+			<p class="section4_lesson_name">Название</p>
+		</div>
+		<div class="clearfix"></div>
+		
+		
+		
+		
+	</div>
+	
+	<div class="container" id="content3_zanyatie" style="display:none;padding-bottom:70px;">
+		<div class="col-sm-2 col-xs-2"><img src="back.png" class="img-responsive" style="height:20px;margin-top:10px;" onclick="load_zanyatiya('0','0');" /></div>
+		<div class="col-sm-8 col-xs-8">
+			<center>
+				<h4 id="section3_name_of_discipline">Занятие №1</h4>
+			</center>
+		</div>
+		<div class="col-sm-2 col-xs-2"></div>
+		<div class="clearfix" style="margin-bottom:6px;"></div>
+	
+		<div class="col-sm-6 col-xs-6" style="text-align:center;"><span id="section3_btn_lesson_video" class="section3_btn_lesson_video_active" onclick="change_content_of_lesson('0');">Видеолекция</span></div>
+		<div class="col-sm-6 col-xs-6" style="text-align:center;"><span id="section3_btn_lesson_slides" class="section3_btn_lesson_slides"  onclick="change_content_of_lesson('1');">Слайды</span></div>
+		
+		<div class="clearfix"></div>
+	
+		<div class="col-sm-12 col-xs-12 section3_lesson_div_video" id="section3_lesson_div_video">
+			<center><img src="youtube.png" class="img-responsive" />
+				<br />
+				<h4>Запустить видео</h4>
+			</center>
+		</div>
+		<div class="col-sm-12 col-xs-12 section3_lesson_div_slide" id="section3_lesson_div_slide" style="display:none;">
+			<center><img src="please_click.png" class="img-responsive" />
+				<br />
+				<h4>Открыть слайдер</h4>
+			</center>
+		</div>
+	
+	</div>
+	
+	<div class="container" id="content3_test" style="display:none;padding-bottom:70px;">
+		<div class="col-sm-2 col-xs-2"><img src="back.png" class="img-responsive" style="height:20px;margin-top:10px;" onclick="open_test('-1');" /></div>
+		<div class="col-sm-8 col-xs-8">
+			<center>
+				<h4 id="section3_name_of_test">Тестирование:</h4>
+			</center>
+		</div>
+		<div class="col-sm-2 col-xs-2"></div>
+		<div class="clearfix" style="margin-bottom:15px;"></div>
+	
+		<div class="col-sm-12 col-xs-12" id="content3_for_work_with_test">
+			Текст про тест
+		</div>
+	
+	</div>
+	
+</div>
+
+
+<script>
+function load_discipline(a) {
+	if(a == "0"){
+		document.getElementById("content3_list_of_disciplines").style.display = "block";
+		document.getElementById("content3_list_of_zanyatiy").style.display = "none";
+	} else {
+		document.getElementById("content3_list_of_disciplines").style.display = "none";
+		document.getElementById("content3_list_of_zanyatiy").style.display = "block";
+		load_discipline_from_server(a);
+	}
+}
+function load_zanyatiya(id_of_discipline,lesson) {
+	if(lesson == "0"){
+		document.getElementById("content3_list_of_zanyatiy").style.display = "block";
+		document.getElementById("content3_zanyatie").style.display = "none";
+	} else {
+		document.getElementById("content3_list_of_zanyatiy").style.display = "none";
+		document.getElementById("content3_zanyatie").style.display = "block";
+		load_zanyatiya_from_server(id_of_discipline,lesson);
+	}
+}
+function change_content_of_lesson(a) {
+	if(a == "0"){
+		$("#section3_btn_lesson_video").attr('class', 'section3_btn_lesson_video_active');
+		$("#section3_btn_lesson_slides").attr('class', 'section3_btn_lesson_slides');
+		document.getElementById("section3_lesson_div_video").style.display = "block";
+		document.getElementById("section3_lesson_div_slide").style.display = "none";
+	} else {
+		$("#section3_btn_lesson_video").attr('class', 'section3_btn_lesson_video');
+		$("#section3_btn_lesson_slides").attr('class', 'section3_btn_lesson_slides_active');
+		document.getElementById("section3_lesson_div_video").style.display = "none";
+		document.getElementById("section3_lesson_div_slide").style.display = "block";
+	}
+}
+var id_of_test = "";
+function open_test(a) {
+	console.log("Запуск теста "+a);
+	id_of_test = a;
+	if(id_of_test == "-1"){
+		document.getElementById("content3_list_of_zanyatiy").style.display = "block";
+		document.getElementById("content3_test").style.display = "none";
+	} else {
+		/*
+		document.getElementById("content3_list_of_zanyatiy").style.display = "none";
+		document.getElementById("content3_test").style.display = "block";
+		*/
+		
+		document.getElementById("content3_for_work_with_test").innerHTML = '<center><img src="loading.gif" width="80px" style="margin-top:50px;" /></center>';
+		document.getElementById("content3_list_of_zanyatiy").style.display = "none";
+		document.getElementById("content3_test").style.display = "block";
+		
+		$.ajax({
+			type:"POST",
+			url:  "https://www.miocedu.ru/application/load_section.php",
+			data:{"b":key_access,"a":id_of_user,"c":"3_test","id_of_test":id_of_test,"command":"start_test"},
+			cashe: false,
+			error:function(){
+				document.getElementById("content3_for_work_with_test").innerHTML = '<div class="col-sm-2 col-xs-2"><img src="back.png" class="img-responsive" style="height:20px;margin-top:10px;" onclick="open_test('+"'"+a+');" /></div><div class="col-sm-8 col-xs-8"></div><div class="col-sm-2 col-xs-2"></div><div class="clearfix" style="margin-bottom:6px;"></div><center><h3 style="padding-top:50px;color:#fc5c42;">Ошибка соединения</h3></center>';
+			},
+			success: function(html)
+			{
+				//alert(html);
+				document.getElementById("content3_for_work_with_test").innerHTML = html;
+				action('','');
+			}
+		});
+	}
+}
+
+function action(step,q){
+	//id_of_test - глобальная переменная
+	
+	if(step == "question_analize"){
+		var answer = "";;
+		var number_of_answers = document.getElementById("number_of_answers").value;
+		var b = 0;
+		for(var i = 1; i <= number_of_answers; i++){
+			if(document.getElementById("answer_"+i).checked == true){
+				if(b > 0){answer = answer + ", "}
+				answer = answer + i;
+				b++;
+			}
+		}
+		
+		var q = document.getElementById("q").value;
+		var id_q = document.getElementById("id_q").value;
+		
+		document.getElementById("action_div").innerHTML = "<center style='padding-top:25px;'><img src='preloader.gif' /></center>";
+		$.ajax({
+			type: "POST",
+			url:  "https://www.miocedu.ru/application/test_action.php",
+			data:{"b":key_access,"a":id_of_user,"answer":answer,"q":q,"id_q":id_q,"step":"question_analize","t":id_of_test},
+			cashe: false,
+			error:function(){
+				alert("Произошла ошибка, проверьте пожалуйста интернет соединение!");
+			},
+			success: function(html)
+			{
+				$("#action_div").empty();
+				$("#action_div").append(html);
+				
+				var a = document.getElementById("next").value;
+				action(a,'');
+			}
+		});
+	} else {
+		document.getElementById("action_div").innerHTML = "<center style='padding-top:25px;'><img src='preloader.gif' /></center>";
+		$.ajax({
+			type: "POST",
+			url:  "https://www.miocedu.ru/application/test_action.php",
+			data: {"b":key_access,"a":id_of_user,"t":id_of_test,"step":step,"q":q},
+			cashe: false,
+			error:function(){
+				alert("Произошла ошибка, проверьте пожалуйста интернет соединение!");
+			},
+			success: function(html)
+			{
+				$("#action_div").empty();
+				$("#action_div").append(html);
+				if(step == "start_action"){
+					var a = document.getElementById("next").value;
+					action(a,'');
+				}
+				if(step == "get_decision"){
+					var a = document.getElementById("next").value;
+					if(a == "gdq"){gdq();}
+					if(a == "complete" || a == "failed" || a == "get_decision"){action(a,'');}
+				}
+			}
+		});
+	}
+}
+</script>
+
+
+
+
+
+
+
+
+
+<div id="content4" class="row" style="position:relative;padding:0;margin:0;display:none;">
+	<div id="content4_list_of_courses">
+		<center style="padding-top:15px;">
+			<h4 style="font-weight:bold;margin-top:15px;margin-bottom:25px;">Курсы</h4>
+			
+			<button id="btn_free_courses" class="btn btn-xs button_section_courses" onclick="change_list_courses('-1');">Бесплатные</button>
+			<button id="btn_all_courses" class="btn btn-xs button_section_courses_active" onclick="change_list_courses('0');">Все курсы</button>
+			<button id="btn_my_collection" class="btn btn-xs button_section_courses" onclick="change_list_courses('1');">Моя коллекция</button>
+		</center>
+			
+		<div class="container" id="content4_div_all_courses">
+			<div class="col-sm-12 col-xs-12 section4_list_courses" onclick="click_course('1');">
+				<div class="col-sm-3 col-xs-3">
+					<img src="no-photo.png" class="img-responsive content4_courses_img_of_course" />
+				</div>
+				<div class="col-sm-9 col-xs-9">
+					<p class="section4_courses_name">Название курса</p>
+					<p class="section4_courses_houres">45 часов</p>
+					<p class="section4_courses_price">2500 рублей</p>
+				</div>
+			</div>
+			<div class="clearfix"></div>
+			<div class="col-sm-12 col-xs-12 section4_list_courses" onclick="click_course('1');">
+				<div class="col-sm-3 col-xs-3">
+					<img src="no-photo.png" class="img-responsive content4_courses_img_of_course" />
+				</div>
+				<div class="col-sm-9 col-xs-9">
+					<p class="section4_courses_name">Название курса</p>
+					<p class="section4_courses_houres">45 часов</p>
+					<p class="section4_courses_price">2500 рублей</p>
+				</div>
+			</div>
+			<div class="clearfix"></div>
+		</div>
+		
+			
+		<div class="container" id="content4_div_my_collection" style="display:none;">
+			<div class="col-sm-12 col-xs-12 section4_list_courses">
+				<div class="col-sm-3 col-xs-3">
+					<img src="no-photo.png" class="img-responsive content4_courses_img_of_course" />
+				</div>
+				<div class="col-sm-9 col-xs-9">
+					<p class="section4_courses_name">Название курса</p>
+					<p class="section4_courses_houres">45 часов</p>
+					<br />
+				</div>
+			</div>
+			<div class="clearfix"></div>
+			<div class="col-sm-12 col-xs-12 section4_list_courses">
+				<div class="col-sm-3 col-xs-3">
+					<img src="no-photo.png" class="img-responsive content4_courses_img_of_course" />
+				</div>
+				<div class="col-sm-9 col-xs-9">
+					<p class="section4_courses_name">Название курса</p>
+					<p class="section4_courses_houres">45 часов</p>
+					<br />
+				</div>
+			</div>
+			<div class="clearfix"></div>
+		</div>
+	</div>
+	
+	<div id="content4_about_course" style="display:none;">
+		<div class="col-sm-12 col-xs-12" style="padding-top:15px;" id="content4_nav_about_course">
+			<div class="col-sm-2 col-xs-2"><img src="back.png" class="img-responsive" style="height:20px;margin-top:14px;" onclick="click_course('0');" /></div>
+			<div class="col-sm-8 col-xs-8">
+				<center>
+					<h4 style="font-weight:bold;margin-top:15px;margin-bottom:25px;">Подробнее о курсе</h4>
+				</center>
+				
+				
+			</div>
+			<div class="col-sm-2 col-xs-2"></div>
+			<div class="clearfix"></div>
+		</div>
+		
+		
+		<div class="col-sm-12 col-xs-12"  id="content4_about_course_for_loading_from_server">	
+			<div class="col-sm-3 col-xs-3">
+				<img src="no-photo.png" class="img-responsive content4_courses_img_of_course" />
+			</div>
+			<div class="col-sm-9 col-xs-9">
+				<p class="section4_courses_name">Название курса</p>
+				<p class="section4_courses_houres">45 часов</p>
+				<p class="section4_courses_price">2500 рублей</p>
+			</div>
+			
+			
+			<div class="clearfix" style="margin-bottom:25px;"></div>
+			<div class="col-sm-6 col-xs-6" style="text-align:center;"><span id="section4_btn_opisanie" class="section4_opisanie_active" onclick="change_opisanie_or_program('0');">Описание курса</span></div>
+			<div class="col-sm-6 col-xs-6" style="text-align:center;"><span id="section4_btn_program" class="section4_program" onclick="change_opisanie_or_program('1');">Программа курса</span></div>
+			
+			<div class="col-sm-12 co-xs-12" id="content4_div_free_courses">
+			
+			</div>
+			<div class="col-sm-12 co-xs-12" id="section4_div_opisanie_of_course">
+			
+			</div>
+			<div class="col-sm-12 co-xs-12" id="section4_div_program_of_course" style="display:none;">
+			
+			</div>
+
+			<div class="col-sm-12 col-xs-12" style="position:fixed;bottom:80px;width:100%;text-align:center;padding:0;margin:0;">
+				<button class="btn section4_btn_auth_course">Записаться</button>
+			</div>
+			
+		</div>
+		
+	</div>
+		
+</div>
+<script>
+function change_list_courses(a){
+	$("#btn_free_courses").attr('class', 'btn btn-block button_section_courses');
+	$("#btn_all_courses").attr('class', 'btn btn-block button_section_courses');
+	$("#btn_my_collection").attr('class', 'btn btn-block button_section_courses');
+	document.getElementById("content4_div_free_courses").style.display = "none";
+	document.getElementById("content4_div_my_collection").style.display = "none";
+	document.getElementById("content4_div_all_courses").style.display = "none";
+	if(a == "0"){
+		$("#status_of_index").val(a);
+		$("#btn_all_courses").attr('class', 'btn btn-block button_section_courses_active');
+		document.getElementById("content4_div_all_courses").style.display = "block";
+	} else {
+		if(a == "-1"){
+			$("#status_of_index").val(a);
+			$("#btn_free_courses").attr('class', 'btn btn-block button_section_courses_active');
+			document.getElementById("content4_div_free_courses").style.display = "block";
+		} else {
+			$("#status_of_index").val(a);
+			$("#btn_my_collection").attr('class', 'btn btn-block button_section_courses_active');
+			document.getElementById("content4_div_my_collection").style.display = "block";
+		}
+	}
+}
+function click_course(a){
+	//здесь проверка с сервера, открыт ли курс
+	var b = 0;
+	if(a != "0"){
+		if(b == 0){
+			//курс не куплен
+			document.getElementById("content4_list_of_courses").style.display = "none";
+			document.getElementById("content4_about_course").style.display = "block";
+			load_about_course(a);
+			
+		} else {
+			//переход на другую секцию с загрузкой учебного материала
+			load_course_for_education(a);
+		}
+	} else {
+		document.getElementById("content4_list_of_courses").style.display = "block";
+		document.getElementById("content4_about_course").style.display = "none";
+		
+	}
+}
+
+function change_opisanie_or_program(a){
+	if(a == "0"){
+		$("#section4_btn_opisanie").attr('class', 'section4_opisanie_active');
+		$("#section4_btn_program").attr('class', 'section4_program');
+		//document.getElementById("section4_div_opisanie_of_course").style.display = "block";
+		//document.getElementById("section4_div_program_of_course").style.display = "none";
+		$("#section4_div_opisanie_of_course").show();
+		$("#section4_div_program_of_course").hide();
+	} else {
+		$("#section4_btn_opisanie").attr('class', 'section4_opisanie');
+		$("#section4_btn_program").attr('class', 'section4_program_active');
+		//document.getElementById("section4_div_opisanie_of_course").style.display = "block";
+		//document.getElementById("section4_div_program_of_course").style.display = "none";
+		$("#section4_div_opisanie_of_course").hide();
+		$("#section4_div_program_of_course").show();
+	}
+}
+
+</script>
+
+
+
+
+
+
+
+
+<div id="content5" class="row" style="position:relative;padding:0;margin:0;display:none;">
+	
+</div>
+
+
+
+
+
+<script>
+function modal_edit_profile_info(content,id_of_content){ 
+	document.getElementById("editing_string").value = content; 
+	document.getElementById("section5_id_of_editing_content").value = id_of_content; 
+} 
+function save_changes_in_profile_info(){
+	var content = document.getElementById("editing_string").value;
+	var id_of_content = document.getElementById("section5_id_of_editing_content").value;
+	console.log("b "+key_access+" a "+id_of_user+" c "+" section5_save_changes_info_profile"+" content "+content+" id_of_content = "+id_of_content);
+	$.ajax({
+		type:"POST",
+		url:  "https://www.miocedu.ru/application/load_section.php",
+		data:{"b":key_access,"a":id_of_user,"c":"section5_save_changes_info_profile","content":content,"id_of_content":id_of_content},
+		cashe: false,
+		error:function(){
+			document.getElementById("content5").innerHTML = '<center><h3 style="padding-top:50px;color:#fc5c42;">Ошибка связи</h3><br /><button class="btn" style="background-color:#fc5c42;color:#fff;font-size:20px;" onclick="load_section('+"'5'"+');">Повторить попытку</button></center>';
+		},
+		success: function(html)
+		{
+			//alert(html);
+			load_section("5");
+		}
+	});
+
+
+	
+}
+</script>
+
+
+
+
+
+
+
+
+<div id="section_change_sections_buttons" style="position:fixed;bottom:0px;width:100%;text-align:center;display:none;background-color:#fff;padding:0px 0px 35px 0px;margin:0;z-index:9999;">
+
+	<hr style="padding:0;margin:0px 0px 15px 0px;" />
+	<div class="col-sm-1 col-xs-1"></div>
+	<div class="col-sm-2 col-xs-2"><img class="iconmenu" src="iconmenu1.png" onclick="load_section1()" /></div>
+	<div class="col-sm-2 col-xs-2"><img class="iconmenu" src="iconmenu2.png" onclick="load_section2()" /></div>
+	<div class="col-sm-2 col-xs-2"><img class="iconmenu" src="iconmenu3.png" onclick="change_menu('3')" /></div>
+	<div class="col-sm-2 col-xs-2"><img class="iconmenu" src="iconmenu4.png" onclick="load_section_4('4')" /></div>
+	<div class="col-sm-2 col-xs-2"><img class="iconmenu" src="iconmenu5.png" onclick="load_section('5')" /></div>
+	<div class="col-sm-1 col-xs-1"></div>
+
+</div>
+
+
+<input type="text" id="content4_already_load" value="0" style="display:none;" />
+
+
+
+
+<button id="button_for_open_modal_for_asking_about_ads_before_watching" data-toggle="modal" data-target="#modal_for_asking_about_ads_before_watching" style="display:none;"></button>
+
+<div class="modal fade" id="modal_for_asking_about_ads_before_watching" tabindex="-1" role="dialog" aria-hidden="true" style="padding-top:10%;">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-body" style="tetx-align:center;">
+                <center id="div_for_text_warning_about_ads" style="margin-top:22px;font-weight:bold;font-size:20px;">Для просмотра контента бесплатных курсов просмотрите пожалуйста рекламный ролик ДО КОНЦА</center>
+            </div>
+            <div class="modal-footer">
+				<div class="col-sm-6 col-xs-6">
+					<button type="button" class="btn btn-success" id="btn_launch_ads" onclick="load_ads();">Смотреть</button>
+				</div>
+				<div class="col-sm-6 col-xs-6">
+					<button type="button" class="btn btn-danger" id="close_modal_for_asking_about_ads" data-dismiss="modal">Отмена</button>
+				</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+//ниже функции прогрузки пиложения
+
+function load_ads(){
+	PUBLIC_watch_ads_to_end = 0;
+	document.getElementById("div_for_text_warning_about_ads").innerHTML = '<img src="loading.gif" height="80px" />';
+	document.getElementById("btn_launch_ads").style.display = "none";
+	console.log("ЗАГРУЗКА РЕКЛАМЫ");
+	
+	//отправляем запрос android начать загружать рекламный материал
+	//Android.load_ads_from_server("");
+	setTimeout("show_ads();", 3000);
+}
+function show_ads(){
+	//Android.js_call_show_ads("");
+    window.location = "nativeScheme://js_call_show_ads";
+}
+function check_video_ads_about_finished(){
+	if(PUBLIC_watch_ads_to_end == 1){
+		close_modal_window_about_ads();
+		load_video_youtube_or_slider_after_ads();
+	} else {
+		close_ads_before_finished_ads();
+	}
+}
+function close_ads_before_finished_ads(){
+	PUBLIC_watch_ads_to_end = 0;
+	console.log("close_ads_before_finished_ads");
+	document.getElementById("div_for_text_warning_about_ads").innerHTML = 'Вы не просмотрели рекламный ролик до конца. Для получения доступа к бесплатным ресурсам приложения просмотрите пожалуйста рекламный ролик ДО КОНЦА.';
+	document.getElementById("btn_launch_ads").style.display = "block";
+}
+function error_while_loading_ads(){
+	PUBLIC_watch_ads_to_end = 0;
+	console.log("error_while_loading_ads");
+	document.getElementById("div_for_text_warning_about_ads").innerHTML = 'Во время загрузки ролика произошла ошибка, проверьте пожалуйста интернет соединение и попробуйте еще раз';
+	document.getElementById("btn_launch_ads").style.display = "block";
+}
+function close_modal_window_about_ads(){
+	document.getElementById("close_modal_for_asking_about_ads").click();
+}
+function watch_ads_to_end(){
+	PUBLIC_watch_ads_to_end = 1;
+}
+
+
+
+function prev_auth(){
+	document.getElementById("div_auth").style.display = "block";
+}
+
+function load_content_from_server(id_of_content){
+
+}
+
+
+
+function change_menu(a){
+	document.getElementById("div_auth").style.display="none";
+	document.getElementById("section_change_sections_buttons").style.display="block";
+	if(a==""){a = "5";}
+	for(var i = 1;i<=5;i++){
+		document.getElementById("content"+i).style.display="none";
+		document.getElementsByClassName("iconmenu")[i-1].src="iconmenu"+i+".png";
+	}
+	document.getElementById("content"+a).style.display="block";
+	document.getElementsByClassName("iconmenu")[a-1].src="iconmenu"+a+"_active.png";
+}
+//change_menu("3");
+
+
+
+
+
+
+
+
+
+
+
+function getUrlVars() {
+var vars = {};
+var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+vars[key] = value;
+});
+return vars;
+}
+var id_of_user = getUrlVars()["a"];
+var key_access = getUrlVars()["b"];
+
+
+
+
+var PUBLIC_id_of_discipline = "";
+var PUBLIC_lesson = "";
+var PUBLIC_kind_of_content = "";
+var PUBLIC_watch_ads_to_end = 0;
+
+function load_video_youtube_or_slider_after_ads(){
+	//Android.open_new_activity_for_youtube_video(PUBLIC_id_of_discipline,PUBLIC_lesson,PUBLIC_kind_of_content);
+    window.location = "nativeScheme://open_new_activity_for_youtube_video"+PUBLIC_id_of_discipline+"_"+PUBLIC_lesson+"_"+PUBLIC_kind_of_content;
+}
+function load_video_youtube_or_slider(id_of_discipline,lesson,kind_of_content){
+    PUBLIC_id_of_discipline = id_of_discipline
+    PUBLIC_lesson = lesson;
+    PUBLIC_kind_of_content = kind_of_content;
+    /*
+	//узнаем, бесплатные ли курсы выбраны
+	if(document.getElementById("status_of_index").value == "-1"){
+		document.getElementById("div_for_text_warning_about_ads").innerHTML = 'Для просмотра контента бесплатных курсов просмотрите пожалуйста рекламный ролик ДО КОНЦА';
+		document.getElementById("btn_launch_ads").style.display = "block";
+		console.log("Вызов модального окна, где спрашивается о запуске рекламы");
+		
+		document.getElementById("button_for_open_modal_for_asking_about_ads_before_watching").click();
+		
+	} else {
+		//Android.open_new_activity_for_youtube_video(id_of_discipline,lesson,kind_of_content);
+        window.location = "nativeScheme://open_new_activity_for_youtube_video"+PUBLIC_id_of_discipline+"_"+PUBLIC_lesson+"_"+PUBLIC_kind_of_content;
+	}
+    */
+
+    window.location = "nativeScheme://open_new_activity_for_youtube_video"+PUBLIC_id_of_discipline+"_"+PUBLIC_lesson+"_"+PUBLIC_kind_of_content;
+}
+
+
+function load_zanyatiya_from_server(id_of_discipline,l){
+	document.getElementById("content3_zanyatie").innerHTML = '<center><img src="loading.gif" width="80px" style="margin-top:50px;" /></center>';
+	$.ajax({
+		type:"POST",
+		url:  "https://www.miocedu.ru/application/load_section.php",
+		data:{"b":key_access,"a":id_of_user,"c":"3_lesson","e":id_of_discipline,"l":l},
+		cashe: false,
+		error:function(){
+			document.getElementById("content3_zanyatie").innerHTML = '<div class="col-sm-2 col-xs-2"><img src="back.png" class="img-responsive" style="height:20px;margin-top:10px;" onclick="load_zanyatiya('+"'0','0'"+');" /></div><div class="col-sm-8 col-xs-8"></div><div class="col-sm-2 col-xs-2"></div><div class="clearfix" style="margin-bottom:6px;"></div><center><h3 style="padding-top:50px;color:#fc5c42;">Ошибка соединения</h3></center>';
+		},
+		success: function(html)
+		{
+			//alert(html);
+			document.getElementById("content3_zanyatie").innerHTML = html;
+		}
+	});
+}
+
+function load_discipline_from_server(e){
+	document.getElementById("content3_list_of_zanyatiy").innerHTML = '<center><img src="loading.gif" width="80px" style="margin-top:50px;" /></center>';
+	$.ajax({
+		type:"POST",
+		url:  "https://www.miocedu.ru/application/load_section.php",
+		data:{"b":key_access,"a":id_of_user,"c":"3_","e":e},
+		cashe: false,
+		error:function(){
+			document.getElementById("content3_list_of_zanyatiy").innerHTML = '<div class="col-sm-2 col-xs-2"><img src="back.png" class="img-responsive" style="height:20px;margin-top:10px;" onclick="load_discipline('+"'0'"+');" /></div><div class="col-sm-8 col-xs-8"></div><div class="col-sm-2 col-xs-2"></div><div class="clearfix"></div><center><h3 style="padding-top:50px;color:#fc5c42;">Ошибка соединения</h3></center>';
+		},
+		success: function(html)
+		{
+			//alert(html);
+			document.getElementById("content3_list_of_zanyatiy").innerHTML = html;
+		}
+	});
+
+}
+
+function load_course_for_education(d){
+	change_menu("3");
+	document.getElementById("content3_list_of_disciplines").innerHTML = '<center><img src="loading.gif" width="80px" style="margin-top:50px;" /></center>';
+	$.ajax({
+		type:"POST",
+		url:  "https://www.miocedu.ru/application/load_section.php",
+		data:{"b":key_access,"a":id_of_user,"c":"3","d":d},
+		cashe: false,
+		error:function(){
+			document.getElementById("content3_list_of_disciplines").innerHTML = '<center><h3 style="padding-top:50px;color:#fc5c42;">Ошибка соединения</h3></center>';
+		},
+		success: function(html)
+		{
+			//alert(html);
+			document.getElementById("content3_list_of_disciplines").innerHTML = html;
+		}
+	});
+}
+
+function load_about_course(d){
+	document.getElementById("content4_about_course_for_loading_from_server").innerHTML = '<center><img src="loading.gif" width="80px" style="margin-top:50px;" /></center>';
+	$.ajax({
+		type:"POST",
+		url:  "https://www.miocedu.ru/application/load_section.php",
+		data:{"b":key_access,"a":id_of_user,"c":"4_","d":d},
+		cashe: false,
+		error:function(){
+			document.getElementById("content4_about_course_for_loading_from_server").innerHTML = '<center><h3 style="padding-top:50px;color:#fc5c42;">Ошибка соединения</h3></center>';
+		},
+		success: function(html)
+		{
+			//alert(html);
+			document.getElementById("content4_about_course_for_loading_from_server").innerHTML = html;
+		}
+	});
+}
+
+function load_section_4(){
+	if(document.getElementById("content4_already_load").value == "0"){
+		load_section("4");
+	} else {
+		change_menu("4");
+	}
+}
+
+function load_section(id_of_section){
+	change_menu(id_of_section);
+	document.getElementById("content"+id_of_section).innerHTML = '<center><img src="loading.gif" width="80px" style="margin-top:20px;" /></center>';
+	$.ajax({
+		type:"POST",
+		url:  "https://www.miocedu.ru/application/load_section.php",
+		data:{"b":key_access,"a":id_of_user,"c":id_of_section},
+		cashe: false,
+		error:function(){
+			//document.getElementById("warning_auth").innerHTML = "Ошибка связи с сервером";
+			document.getElementById("content"+id_of_section).innerHTML = '<center><h3 style="padding-top:50px;color:#fc5c42;">Ошибка связи</h3><br /><button class="btn" style="background-color:#fc5c42;color:#fff;font-size:20px;" onclick="load_section('+"'"+id_of_section+"'"+');">Повторить попытку</button></center>';
+		},
+		success: function(html)
+		{
+			//alert(html);
+			if(html == "error 2"){
+				Android.js_destroy_auth("");
+			} else {
+				//прогрузка контента
+				document.getElementById("content"+id_of_section).innerHTML = html;
+			}
+			if(id_of_section == "4"){
+				document.getElementById("content4_already_load").value = "1";
+			}
+		}
+	});
+}
+
+
+
+function start_application(){
+	//document.getElementById("id_of_user").value = id_of_user;
+	//document.getElementById("key_access").value = key_access;
+	//alert("id_of_user = "+ id_of_user);
+	if(id_of_user != "" && key_access != "" && typeof id_of_user != "undefined" && typeof key_access != "undefined"){
+		//alert("Загрузка профиля");
+		document.getElementById("section_change_sections_buttons").style.display="block";
+		load_section("5");
+	} else {
+		prev_auth();
+	}
+}
+start_application();
+
+
+
+var a = $(window).height();
+var b = $("#section_change_sections_buttons").height();
+console.log(a-b);
+$("#content5").css('height',a-b);
+$("#content5").css('margin-bottom',"50px");
+
+$("#content4").css('height',a-b);
+//$("#content4").css('padding-bottom',"100px");
+
+$("#content4_about_course_for_loading_from_server").css('height',a-b);
+//$("#content4_about_course_for_loading_from_server").css('margin-bottom',"300px");
+
+$("#content3").css('height',a-b);
+$("#content3").css('margin-bottom',"50px");
+
+$("#content2").css('height',a-b);
+$("#content2").css('margin-bottom',"50px");
+
+$("#content1").css('height',a-b);
+$("#content1").css('margin-bottom',"50px");
+</script>
+
+<input type="text" id="id_of_user" style="display:none;" />
+<input type="text" id="key_access" style="display:none;" />
+
+</body>
+</html>

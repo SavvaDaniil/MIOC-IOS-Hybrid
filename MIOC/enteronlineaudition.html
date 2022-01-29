@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Онлайн аудитория</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, maximum-scale=10.0, user-scalable=no">
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <script src="js/jquery-3.2.1.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+
+  
+  <link rel="stylesheet" href="css/style.css">
+  
+</head>
+<body>
+
+
+<div class="row" id="section_change_sections_buttons" style="position:fixed;top:0px;width:100%;text-align:center;background-color:#000;padding:15px 0px 15px 0px;margin:0;z-index:9999;">
+
+	<div class="col-sm-2 col-xs-2"><img class="iconmenu" src="onlineaudition/logout_from_audition_active.png" /></div>
+	<div class="clearfix">
+	
+	</div>
+	<!--<hr style="padding:0;margin:15px 0px 0px 0px;" />-->
+
+</div>
+
+
+
+<div id="section1" class="row" style=""></div>
+
+<div id="section2" class="row" style="display:none;"></div>
+<div id="section3" class="row" style="display:none;"></div>
+
+
+
+<!--
+<img src="close.png" width="40px" style="position:absolute;margin-top:7px;margin-left:7px;z-index:1000;" onclick="close_activity();" />
+
+
+<div class="row" id="div_for_youtube" style="padding:0;margin:0;display:none;">
+
+</div>
+
+<div class="row" id="div_for_slider" style="padding:0;margin:0;display:none;">
+	
+</div>
+-->
+
+<script>
+//ниже функции прогрузки пиложения
+
+function close_activity(){
+	//Android.close_activity("");
+}
+
+function getUrlVars() {
+var vars = {};
+var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+vars[key] = value;
+});
+return vars;
+}
+var id_of_user = getUrlVars()["a"];
+var key_access = getUrlVars()["b"];
+
+var content_for_second_activity = getUrlVars()["c"];
+var id_of_discipline = getUrlVars()["d"];
+var lesson = getUrlVars()["e"];
+
+
+if(content_for_second_activity == "youtube"){
+	document.getElementById("div_for_youtube").innerHTML = '<center><img src="loading.gif" width="80px" style="margin-top:50px;" /></center>';
+	document.getElementById("div_for_youtube").style.display = "block";
+	//document.getElementById("iframe_for_video_youtube").src = discipline_and_id_of_video_on_youtube + "?rel=0&showinfo=0&";
+	$.ajax({
+		type:"POST",
+		url:  "https://www.miocedu.ru/application/load_section.php",
+		data:{"b":key_access,"a":id_of_user,"c":"youtube","e":id_of_discipline,"l":lesson},
+		cashe: false,
+		error:function(){
+			document.getElementById("div_for_youtube").innerHTML = '<center><h3 style="padding-top:50px;color:#fc5c42;">Ошибка соединения</h3></center>';
+		},
+		success: function(html)
+		{
+			//alert(html);
+			document.getElementById("div_for_youtube").innerHTML = html;
+		}
+	});
+}
+
+
+function load_slide(id_of_discipline_js,lesson_js,command){
+	document.getElementById("div_for_slider").innerHTML = '<center><img src="loading.gif" width="80px" style="margin-top:50px;" /></center>';
+	document.getElementById("div_for_slider").style.display = "block";
+	$.ajax({
+		type:"POST",
+		url:  "https://www.miocedu.ru/application/load_section.php",
+		data:{"b":key_access,"a":id_of_user,"c":"slide","e":id_of_discipline_js,"l":lesson_js,"command":command},
+		cashe: false,
+		error:function(){
+			document.getElementById("div_for_slider").innerHTML = '<center><h3 style="padding-top:50px;color:#fc5c42;">Ошибка соединения</h3></center>';
+		},
+		success: function(html)
+		{
+			//alert(html);
+			document.getElementById("div_for_slider").innerHTML = html;
+		}
+	});
+}
+
+if(content_for_second_activity == "slide"){
+/*
+	document.getElementById("div_for_slider").innerHTML = '<center><img src="loading.gif" width="80px" style="margin-top:50px;" /></center>';
+	document.getElementById("div_for_slider").style.display = "block";
+	$.ajax({
+		type:"POST",
+		url:  "https://www.miocedu.ru/application/load_section.php",
+		data:{"b":key_access,"a":id_of_user,"c":"slide","e":id_of_discipline,"l":lesson},
+		cashe: false,
+		error:function(){
+			document.getElementById("div_for_slider").innerHTML = '<center><h3 style="padding-top:50px;color:#fc5c42;">Ошибка соединения</h3></center>';
+		},
+		success: function(html)
+		{
+			document.getElementById("div_for_slider").innerHTML = html;
+		}
+	});
+	*/
+	load_slide(id_of_discipline,lesson,"0");
+}
+
+
+
+
+var a = $(window).height();
+var b = $("#div_for_youtube").height();
+$("#div_for_youtube").css('height',a);
+</script>
+
+<input type="text" id="id_of_user" style="display:none;" />
+<input type="text" id="key_access" style="display:none;" />
+
+</body>
+</html>
